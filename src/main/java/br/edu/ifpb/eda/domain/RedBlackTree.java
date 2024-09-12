@@ -7,7 +7,7 @@ public class RedBlackTree {
     public RedBlackTree() {
         this.filho = new RedBlackNode(0);
         this.filho.setCor(false);
-        this.filho = this.raiz;
+        this.raiz = this.filho;
     }
 
     public void inserir(int valor) {
@@ -17,16 +17,20 @@ public class RedBlackTree {
     }
 
     private RedBlackNode inserirRecursivamente(RedBlackNode atual, RedBlackNode novoNodo) {
-        if (atual == this.filho) {
+        if (atual == null || atual == this.filho) {
             return novoNodo;
         }
 
         if (novoNodo.getValor() < atual.getValor()) {
             atual.setEsquerda(inserirRecursivamente(atual.getEsquerda(), novoNodo));
-            atual.getEsquerda().setPai(atual);
+            if (atual.getEsquerda() != null) {
+                atual.getEsquerda().setPai(atual);
+            }
         }else {
             atual.setDireita(inserirRecursivamente(atual.getDireita(), novoNodo));
-            atual.getDireita().setPai(atual);
+            if (atual.getDireita() != null) {
+                atual.getDireita().setPai(atual);
+            }
         }
 
         return atual;
@@ -42,7 +46,7 @@ public class RedBlackTree {
             if (pai == avo.getDireita()) { // ANALISANDO PELA DIREITA
                 RedBlackNode tio = avo.getEsquerda();
 
-                if (tio.isCor()) { // SE O TIO FOR VERMELHO TBM, ENTÃO:
+                if ((tio != this.filho && tio != null) && tio.isCor()) { // SE O TIO FOR VERMELHO TBM, ENTÃO:
                     tio.setCor(false);
                     pai.setCor(false);
                     avo.setCor(true);
@@ -54,12 +58,12 @@ public class RedBlackTree {
                     }
                     pai.setCor(false);
                     avo.setCor(true);
-                     girarAEsquerda(avo);
+                    girarAEsquerda(avo);
                 }
             } else { // ANALISANDO PELA ESQUERDA
                 RedBlackNode tio = avo.getDireita();
 
-                if (tio.isCor()) {
+                if ((tio != this.filho && tio != null) && tio.isCor()) {
                     tio.setCor(false);
                     pai.setCor(false);
                     avo.setCor(true);
@@ -80,9 +84,14 @@ public class RedBlackTree {
 
     private void girarAEsquerda(RedBlackNode nodo) {
         RedBlackNode filhoDireita = nodo.getDireita();
+
+        if (filhoDireita == null) {
+            return;
+        }
+
         nodo.setDireita(filhoDireita.getEsquerda());
 
-        if (filhoDireita.getEsquerda() != this.filho) {
+        if (filhoDireita.getEsquerda() != null && filhoDireita.getEsquerda() != this.filho) {
             filhoDireita.getEsquerda().setPai(nodo);
         }
 
@@ -102,9 +111,14 @@ public class RedBlackTree {
 
     private void girarADireita(RedBlackNode nodo) {
         RedBlackNode filhoEsquerda = nodo.getEsquerda();
+
+        if (filhoEsquerda == null) {
+            return;
+        }
+
         nodo.setEsquerda(filhoEsquerda.getDireita());
 
-        if (filhoEsquerda.getDireita() != this.filho) {
+        if (filhoEsquerda.getDireita() != null && filhoEsquerda.getDireita() != this.filho) {
             filhoEsquerda.getDireita().setPai(nodo);
         }
 
@@ -127,7 +141,7 @@ public class RedBlackTree {
     }
 
     private void printInOrderHelper(RedBlackNode node) {
-        if (node != filho) {
+        if (node != filho && node != null) {
             printInOrderHelper(node.getEsquerda());
             String sColor = node.isCor() ? "\033[31m" : "\033[30m";
             System.out.print("(" + sColor + node.getValor() + "\033[0m), ");
